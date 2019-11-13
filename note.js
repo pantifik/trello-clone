@@ -1,5 +1,5 @@
 const Note = {
-  id: 8,
+  idCount: 8,
   dragged: null,
   process(note) {
     note.addEventListener("dblclick", function(event) {
@@ -27,7 +27,6 @@ const Note = {
     this.classList.add("dragged");
   },
   dragend(event) {
-    event.stopPropagation();
     Note.dragged = null;
     this.classList.remove("dragged");
 
@@ -37,22 +36,30 @@ const Note = {
   },
 
   dragenter(event) {
+    if (!Note.dragged || this === Note.dragged) {
+      return;
+    }
     event.stopPropagation();
-    if (!Note.dragged || this === Note.dragged) return;
     this.classList.add("under");
   },
   dragover(event) {
     event.preventDefault();
-    if (!Note.dragged || this === Note.dragged) return;
+    if (!Note.dragged || this === Note.dragged) {
+      return;
+    }
   },
   dragleave(event) {
+    if (!Note.dragged || this === Note.dragged) {
+      return;
+    }
     event.stopPropagation();
-    if (!Note.dragged || this === Note.dragged) return;
     this.classList.remove("under");
   },
   drop(event) {
     event.stopPropagation();
-    if (!Note.dragged || this === Note.dragged) return;
+    if (!Note.dragged || this === Note.dragged) {
+      return;
+    }
     if (this.parentElement === Note.dragged.parentElement) {
       const notes = Array.from(this.parentElement.querySelectorAll(".note"));
 

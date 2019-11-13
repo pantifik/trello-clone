@@ -1,5 +1,7 @@
 const Column = {
-  id: 4,
+  idCount: 4,
+  dragged: null,
+  dropped: null,
   addNote(columnElement) {
     columnElement
       .querySelector("[data-action-addNote]")
@@ -20,11 +22,15 @@ const Column = {
       event.preventDefault();
     });
     columnElement.addEventListener("drop", function(event) {
-      console.log("col");
       if (Note.dragged) {
         this.querySelector("[data-notes]").append(Note.dragged);
       }
     });
+    columnElement.addEventListener("dragstart", Column.dragstart);
+    columnElement.addEventListener("dragend", Column.dragend);
+    columnElement.addEventListener("dragover", Column.dragover);
+
+    columnElement.addEventListener("drop", Column.drop);
   },
   editingHeader(columnElement) {
     const colHeader = columnElement.querySelector(".column-header");
@@ -54,5 +60,61 @@ const Column = {
     document.querySelector(".columns").append(newColumn);
     Column.id++;
     Column.addNote(newColumn);
+  },
+  dragstart(event) {
+    Column.dragged = this;
+    this.classList.add("dragged");
+  },
+  dragend(event) {
+    Column.dragged = null;
+    this.classList.remove("dragged");
+    Column.dropped = null;
+    document
+      .querySelectorAll(".column")
+      .forEach(element => element.classList.remove("under"));
+  },
+  dragenter(event) {
+    event.stopPropagation();
+    if (!Column.dragged || this === Column.dragged) {
+      return;
+    }
+  },
+  dragover(event) {
+    if (Column.dragged === this) {
+      if (Column.dropped) {
+        Column.dropped.classList.remove("under");
+      }
+      Column.dropped = null;
+    }
+
+    if (!Column.dragged || this === Column.dragged) {
+      return;
+    }
+
+    Column.dropped = this;
+
+    document
+      .querySelectorAll(".column")
+      .forEach(element => element.classList.remove("under"));
+
+    Column.dropped.classList.add("under");
+  },
+  dragleave(event) {
+    if (!Column.dragged || this === Column.dragged) {
+      return;
+    }
+
+    this.classList.remove("under");
+  },
+  drop(event) {
+    if (!Column.dragged || this === Column.dragged) {
+      return;
+    }
+
+    const colums = Array.from(this.parentElement.querySelectorAll(".column"));
+
+    colums.indexOf(this) < colums.indexOf(Column.dragged)
+      ? this.before(Column.dragged)
+      : this.after(Column.dragged);
   }
 };
