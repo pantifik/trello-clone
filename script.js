@@ -1,7 +1,9 @@
-document.querySelectorAll(".column").forEach(Column.addNote);
-
+//document.querySelectorAll(".column").forEach(Column.addNote);
+App.load();
 document
   .querySelector("[data-action-addColumn]")
-  .addEventListener("click", Column.addNewColumn);
+  .addEventListener("click", function(event) {
+    document.querySelector(".columns").append(new Column().element);
+  });
 
-document.querySelectorAll(".note").forEach(Note.process);
+//document.querySelectorAll(".note").forEach(Note.process);

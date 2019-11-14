@@ -1,23 +1,35 @@
-const Column = {
-  idCount: 4,
-  dragged: null,
-  dropped: null,
-  addNote(columnElement) {
+class Column {
+  constructor(id = null, title = "В плане") {
+    let currentId = id || this.idCount++;
+    const self = this;
+    const columnElement = (this.element = document.createElement("div"));
+    columnElement.classList.add("column");
+    columnElement.setAttribute("data-column-id", currentId);
+    columnElement.setAttribute("draggable", true);
+    columnElement.innerHTML = `
+                          <p class="column-header">
+                              ${title}
+                            </p>
+                            <div data-notes></div>
+                            <p class="column-footer">
+                              <span data-action-addNote class="action">
+                                + Добавить карточку
+                              </span>
+                            </p>`;
+
     columnElement
       .querySelector("[data-action-addNote]")
       .addEventListener("click", function(event) {
-        const newNote = document.createElement("div");
-        newNote.classList.add("note");
-        newNote.setAttribute("data-note-id", Note.id);
-        newNote.setAttribute("draggable", true);
-        newNote.setAttribute("contenteditable", true);
-        columnElement.querySelector("[data-notes]").append(newNote);
-        newNote.focus();
-        Note.process(newNote);
+        const newNote = new Note();
+        columnElement.querySelector("[data-notes]").append(newNote.element);
+        newNote.element.focus();
 
-        Note.id++;
+        newNote.element.setAttribute("contenteditable", true);
+
+        newNote.idCount++;
+        App.save();
       });
-    Column.editingHeader(columnElement);
+    this.editingHeader(columnElement);
     columnElement.addEventListener("dragover", function(event) {
       event.preventDefault();
     });
@@ -26,12 +38,12 @@ const Column = {
         this.querySelector("[data-notes]").append(Note.dragged);
       }
     });
-    columnElement.addEventListener("dragstart", Column.dragstart);
-    columnElement.addEventListener("dragend", Column.dragend);
-    columnElement.addEventListener("dragover", Column.dragover);
+    columnElement.addEventListener("dragstart", this.dragstart.bind(this));
+    columnElement.addEventListener("dragend", this.dragend.bind(this));
+    columnElement.addEventListener("dragover", this.dragover.bind(this));
 
-    columnElement.addEventListener("drop", Column.drop);
-  },
+    columnElement.addEventListener("drop", this.drop.bind(this));
+  }
   editingHeader(columnElement) {
     const colHeader = columnElement.querySelector(".column-header");
     colHeader.addEventListener("dblclick", function(event) {
@@ -40,81 +52,69 @@ const Column = {
     });
     colHeader.addEventListener("blur", function(event) {
       this.removeAttribute("contenteditable");
+      App.save();
     });
-  },
-  addNewColumn() {
-    const newColumn = document.createElement("div");
-    newColumn.classList.add("column");
-    newColumn.setAttribute("data-column-id", Column.id);
-    newColumn.setAttribute("draggable", true);
-    newColumn.innerHTML = `
-                          <p class="column-header">
-                              В плане
-                            </p>
-                            <div data-notes></div>
-                            <p class="column-footer">
-                              <span data-action-addNote class="action">
-                                + Добавить карточку
-                              </span>
-                            </p>`;
-    document.querySelector(".columns").append(newColumn);
-    Column.id++;
-    Column.addNote(newColumn);
-  },
+  }
   dragstart(event) {
-    Column.dragged = this;
-    this.classList.add("dragged");
-  },
+    this.dragged = this.element;
+    this.element.classList.add("dragged");
+  }
   dragend(event) {
-    Column.dragged = null;
-    this.classList.remove("dragged");
-    Column.dropped = null;
+    this.dragged = null;
+    this.element.classList.remove("dragged");
+    this.dropped = null;
     document
       .querySelectorAll(".column")
       .forEach(element => element.classList.remove("under"));
-  },
+  }
   dragenter(event) {
     event.stopPropagation();
-    if (!Column.dragged || this === Column.dragged) {
+    if (!this.dragged || this.element === this.dragged) {
       return;
     }
-  },
+  }
   dragover(event) {
-    if (Column.dragged === this) {
-      if (Column.dropped) {
-        Column.dropped.classList.remove("under");
+    if (this.dragged === this.element) {
+      if (this.dropped) {
+        this.dropped.classList.remove("under");
       }
-      Column.dropped = null;
+      this.dropped = null;
     }
 
-    if (!Column.dragged || this === Column.dragged) {
+    if (!this.dragged || this.element === this.dragged) {
       return;
     }
 
-    Column.dropped = this;
+    this.dropped = this.element;
 
     document
       .querySelectorAll(".column")
       .forEach(element => element.classList.remove("under"));
 
-    Column.dropped.classList.add("under");
-  },
-  dragleave(event) {
-    if (!Column.dragged || this === Column.dragged) {
-      return;
-    }
-
-    this.classList.remove("under");
-  },
-  drop(event) {
-    if (!Column.dragged || this === Column.dragged) {
-      return;
-    }
-
-    const colums = Array.from(this.parentElement.querySelectorAll(".column"));
-
-    colums.indexOf(this) < colums.indexOf(Column.dragged)
-      ? this.before(Column.dragged)
-      : this.after(Column.dragged);
+    this.dropped.classList.add("under");
   }
-};
+  dragleave(event) {
+    if (!this.dragged || this.element === this.dragged) {
+      return;
+    }
+
+    this.element.classList.remove("under");
+  }
+  drop(event) {
+    if (!this.dragged || this.element === this.dragged) {
+      return;
+    }
+
+    const colums = Array.from(
+      this.element.parentElement.querySelectorAll(".column")
+    );
+
+    colums.indexOf(this) < colums.indexOf(this.dragged)
+      ? this.before(this.dragged)
+      : this.after(this.dragged);
+    App.save();
+  }
+}
+Column.idCount = 4;
+Column.dragged = null;
+Column.dropped = null;

@@ -1,7 +1,13 @@
-const Note = {
-  idCount: 8,
-  dragged: null,
-  process(note) {
+class Note {
+  constructor(id = null, content = "") {
+    let currentId = id || this.idCount++;
+    const note = document.createElement("div");
+    this.element = note;
+    note.classList.add("note");
+    note.textContent = content;
+    note.setAttribute("data-note-id", currentId);
+    note.setAttribute("draggable", true);
+
     note.addEventListener("dblclick", function(event) {
       this.setAttribute("contenteditable", true);
       this.removeAttribute("draggable");
@@ -12,62 +18,75 @@ const Note = {
       this.removeAttribute("contenteditable");
       this.setAttribute("draggable", true);
       this.closest(".column").setAttribute("draggable", true);
-      if (!this.textContent.trim().length) this.remove();
+      if (!this.textContent.trim().length) {
+        this.remove();
+      }
+      App.save();
     });
-    note.addEventListener("dragstart", Note.dragstart);
-    note.addEventListener("dragend", Note.dragend);
-    note.addEventListener("dragenter", Note.dragenter);
-    note.addEventListener("dragover", Note.dragover);
-    note.addEventListener("dragleave", Note.dragleave);
-    note.addEventListener("drop", Note.drop);
-  },
+    note.addEventListener("dragstart", this.dragstart.bind(this));
+    note.addEventListener("dragend", this.dragend.bind(this));
+    note.addEventListener("dragenter", this.dragenter.bind(this));
+    note.addEventListener("dragover", this.dragover.bind(this));
+    note.addEventListener("dragleave", this.dragleave.bind(this));
+    note.addEventListener("drop", this.drop.bind(this));
+  }
+
   dragstart(event) {
     event.stopPropagation();
-    Note.dragged = this;
-    this.classList.add("dragged");
-  },
+    this.dragged = this.element;
+    this.element.classList.add("dragged");
+  }
+
   dragend(event) {
-    Note.dragged = null;
-    this.classList.remove("dragged");
+    this.dragged = null;
+    this.element.classList.remove("dragged");
 
     document
       .querySelectorAll(".note")
       .forEach(note => note.classList.remove("under"));
-  },
+  }
 
   dragenter(event) {
-    if (!Note.dragged || this === Note.dragged) {
+    if (!this.dragged || this.element === this.dragged) {
       return;
     }
     event.stopPropagation();
-    this.classList.add("under");
-  },
+    this.element.classList.add("under");
+  }
+
   dragover(event) {
     event.preventDefault();
-    if (!Note.dragged || this === Note.dragged) {
+    if (!this.dragged || this.element === this.dragged) {
       return;
-    }
-  },
-  dragleave(event) {
-    if (!Note.dragged || this === Note.dragged) {
-      return;
-    }
-    event.stopPropagation();
-    this.classList.remove("under");
-  },
-  drop(event) {
-    event.stopPropagation();
-    if (!Note.dragged || this === Note.dragged) {
-      return;
-    }
-    if (this.parentElement === Note.dragged.parentElement) {
-      const notes = Array.from(this.parentElement.querySelectorAll(".note"));
-
-      notes.indexOf(this) < notes.indexOf(Note.dragged)
-        ? this.before(Note.dragged)
-        : this.after(Note.dragged);
-    } else {
-      this.parentElement.prepend(Note.dragged, this);
     }
   }
-};
+
+  dragleave(event) {
+    if (!this.dragged || this.element === this.dragged) {
+      return;
+    }
+    event.stopPropagation();
+    this.element.classList.remove("under");
+  }
+
+  drop(event) {
+    event.stopPropagation();
+    if (!this.dragged || this.element === this.dragged) {
+      return;
+    }
+    if (this.element.parentElement === this.dragged.parentElement) {
+      const notes = Array.from(
+        this.element.parentElement.querySelectorAll(".note")
+      );
+
+      notes.indexOf(this.element) < notes.indexOf(this.dragged)
+        ? this.element.before(this.dragged)
+        : this.element.after(this.dragged);
+    } else {
+      this.element.parentElement.prepend(this.dragged, this.element);
+    }
+    App.save();
+  }
+}
+Note.idCount = 8;
+Note.dragged = null;
