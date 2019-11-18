@@ -33,12 +33,12 @@ class Note {
 
   dragstart(event) {
     event.stopPropagation();
-    this.dragged = this.element;
+    Note.dragged = this.element;
     this.element.classList.add("dragged");
   }
 
   dragend(event) {
-    this.dragged = null;
+    Note.dragged = null;
     this.element.classList.remove("dragged");
 
     document
@@ -47,7 +47,7 @@ class Note {
   }
 
   dragenter(event) {
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Note.dragged || this.element === Note.dragged) {
       return;
     }
     event.stopPropagation();
@@ -56,13 +56,13 @@ class Note {
 
   dragover(event) {
     event.preventDefault();
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Note.dragged || this.element === Note.dragged) {
       return;
     }
   }
 
   dragleave(event) {
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Note.dragged || this.element === Note.dragged) {
       return;
     }
     event.stopPropagation();
@@ -71,19 +71,19 @@ class Note {
 
   drop(event) {
     event.stopPropagation();
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Note.dragged || this.element === Note.dragged) {
       return;
     }
-    if (this.element.parentElement === this.dragged.parentElement) {
+    if (this.element.parentElement === Note.dragged.parentElement) {
       const notes = Array.from(
         this.element.parentElement.querySelectorAll(".note")
       );
 
-      notes.indexOf(this.element) < notes.indexOf(this.dragged)
-        ? this.element.before(this.dragged)
-        : this.element.after(this.dragged);
+      notes.indexOf(this.element) < notes.indexOf(Note.dragged)
+        ? this.element.before(Note.dragged)
+        : this.element.after(Note.dragged);
     } else {
-      this.element.parentElement.prepend(this.dragged, this.element);
+      this.element.parentElement.prepend(Note.dragged, this.element);
     }
     App.save();
   }

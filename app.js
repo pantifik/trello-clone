@@ -43,7 +43,6 @@ const App = {
 
   load() {
     if (!localStorage.getItem("trello")) {
-      //TODO firstrun
       return;
     }
 
@@ -52,6 +51,7 @@ const App = {
     const mountPoint = document.querySelector(".columns");
     const noteById = id => data.notes.items.find(notes => notes.id == id);
     mountPoint.innerHTML = "";
+
     for (const { id, notesId, title } of data.columns.items) {
       const columnElement = new Column(id, title);
 

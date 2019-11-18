@@ -1,6 +1,6 @@
 class Column {
   constructor(id = null, title = "В плане") {
-    let currentId = id || this.idCount++;
+    let currentId = id || Column.idCount++;
     const self = this;
     const columnElement = (this.element = document.createElement("div"));
     columnElement.classList.add("column");
@@ -56,11 +56,11 @@ class Column {
     });
   }
   dragstart(event) {
-    this.dragged = this.element;
+    Column.dragged = this.element;
     this.element.classList.add("dragged");
   }
   dragend(event) {
-    this.dragged = null;
+    Column.dragged = null;
     this.element.classList.remove("dragged");
     this.dropped = null;
     document
@@ -69,19 +69,19 @@ class Column {
   }
   dragenter(event) {
     event.stopPropagation();
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Column.dragged || this.element === Column.dragged) {
       return;
     }
   }
   dragover(event) {
-    if (this.dragged === this.element) {
+    if (Column.dragged === this.element) {
       if (this.dropped) {
         this.dropped.classList.remove("under");
       }
       this.dropped = null;
     }
 
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Column.dragged || this.element === Column.dragged) {
       return;
     }
 
@@ -94,14 +94,14 @@ class Column {
     this.dropped.classList.add("under");
   }
   dragleave(event) {
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Column.dragged || this.element === Column.dragged) {
       return;
     }
 
     this.element.classList.remove("under");
   }
   drop(event) {
-    if (!this.dragged || this.element === this.dragged) {
+    if (!Column.dragged || this.element === Column.dragged) {
       return;
     }
 
@@ -109,9 +109,9 @@ class Column {
       this.element.parentElement.querySelectorAll(".column")
     );
 
-    colums.indexOf(this) < colums.indexOf(this.dragged)
-      ? this.before(this.dragged)
-      : this.after(this.dragged);
+    colums.indexOf(this.element) < colums.indexOf(Column.dragged)
+      ? this.element.before(Column.dragged)
+      : this.element.after(Column.dragged);
     App.save();
   }
 }
