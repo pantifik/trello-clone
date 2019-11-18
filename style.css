@@ -40,6 +40,25 @@ body {
   background: #f1f1f1;
   padding: 10px 15px;
 }
+.del {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.del span {
+  display: block;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+  text-align: center;
+  color: rgb(82, 82, 82);
+  background: rgba(241, 241, 241, 0.5);
+
+  cursor: auto;
+}
 
 .adder {
   background: rgba(241, 241, 241, 0.5);
