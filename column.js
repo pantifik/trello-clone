@@ -22,9 +22,8 @@ class Column {
       .addEventListener("click", function(event) {
         const newNote = new Note();
         columnElement.querySelector("[data-notes]").append(newNote.element);
-        newNote.element.focus();
-
         newNote.element.setAttribute("contenteditable", true);
+        newNote.element.focus();
 
         newNote.idCount++;
         App.save();
@@ -45,12 +44,15 @@ class Column {
     columnElement.addEventListener("drop", this.drop.bind(this));
   }
   editingHeader(columnElement) {
+    const self = this;
     const colHeader = columnElement.querySelector(".column-header");
     colHeader.addEventListener("dblclick", function(event) {
+      self.element.removeAttribute("draggable");
       this.setAttribute("contenteditable", true);
       this.focus();
     });
     colHeader.addEventListener("blur", function(event) {
+      self.element.setAttribute("draggable", true);
       this.removeAttribute("contenteditable");
       App.save();
     });
@@ -115,6 +117,6 @@ class Column {
     App.save();
   }
 }
-Column.idCount = 4;
+
 Column.dragged = null;
 Column.dropped = null;

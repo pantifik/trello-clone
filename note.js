@@ -1,6 +1,6 @@
 class Note {
   constructor(id = null, content = "") {
-    let currentId = id || this.idCount++;
+    let currentId = id || Note.idCount++;
     const note = document.createElement("div");
     this.element = note;
     note.classList.add("note");
@@ -70,7 +70,6 @@ class Note {
   }
 
   drop(event) {
-    event.stopPropagation();
     if (!Note.dragged || this.element === Note.dragged) {
       return;
     }
@@ -88,5 +87,5 @@ class Note {
     App.save();
   }
 }
-Note.idCount = 8;
+
 Note.dragged = null;
