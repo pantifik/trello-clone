@@ -2,11 +2,11 @@ const App = {
   save() {
     const data = {
       columns: {
-        counterId: 1,
+        idCount: 1,
         items: []
       },
       notes: {
-        counterId: 1,
+        idCount: 1,
         items: []
       }
     };
@@ -24,6 +24,7 @@ const App = {
 
       data.columns.items.push(column);
     });
+    data.columns.idCount = Column.idCount;
 
     document.querySelectorAll(".note").forEach(noteElement => {
       const note = {
@@ -33,25 +34,30 @@ const App = {
 
       data.notes.items.push(note);
     });
+    data.notes.idCount = Note.idCount;
 
     const json = JSON.stringify(data);
 
     localStorage.setItem("trello", json);
-    console.log("save");
     return data;
   },
 
   load() {
     if (!localStorage.getItem("trello")) {
-      //TODO firstrun
+      Column.idCount = 1;
+      Note.idCount = 1;
       return;
     }
 
     const data = JSON.parse(localStorage.getItem("trello"));
-    console.log(data);
+
+    Column.idCount = data.columns.idCount;
+    Note.idCount = data.notes.idCount;
+    console.log(Column.idCount, Note.idCount);
     const mountPoint = document.querySelector(".columns");
     const noteById = id => data.notes.items.find(notes => notes.id == id);
     mountPoint.innerHTML = "";
+
     for (const { id, notesId, title } of data.columns.items) {
       const columnElement = new Column(id, title);
 
